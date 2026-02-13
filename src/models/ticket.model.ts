@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IUser } from './user.model.js'; 
+import { IUser } from './user.model.ts'; 
 
 export interface ITicket extends Document {
   title: string;

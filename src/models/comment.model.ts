@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IUser } from './user.model.js';
-import { ITicket } from './ticket.model.js';
+import type { IUser } from './user.model.ts';
+import type { ITicket } from './ticket.model.ts';
 
 export interface IComment extends Document {
   content: string;

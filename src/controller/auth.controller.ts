@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { registerService, loginService, logoutService } from '../services/auth.service.js';
+import type { Request, Response, NextFunction } from 'express';
+import { registerService, loginService, logoutService } from '../services/auth.service.ts';
 
 // Helper for setting cookies for access and refresh tokens
 function setCookies(res: Response, accessToken: string, refreshToken: string) {

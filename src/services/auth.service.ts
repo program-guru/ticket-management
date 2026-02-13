@@ -1,7 +1,8 @@
 import bcrypt from 'bcryptjs';
-import User, { IUser } from '../models/user.model.js';
-import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
-import { RefreshToken } from 'models/refreshToken.mode.js';
+import User from '../models/user.model.ts';
+import type { IUser } from '../models/user.model.ts';
+import { generateAccessToken, generateRefreshToken } from '../utils/jwt.ts';
+import { RefreshToken } from '../models/refreshToken.model.ts';
 
 // Helper to create and store refresh token in DB
 async function createAndStoreRefreshToken(userId: string) {

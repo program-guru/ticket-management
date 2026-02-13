@@ -1,5 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { validationResult, FieldValidationError } from 'express-validator';
+import type { Request, Response, NextFunction } from 'express';
+import type { FieldValidationError } from 'express-validator';
+import { validationResult } from 'express-validator';
 
 export function validateRequest(
   req: Request,

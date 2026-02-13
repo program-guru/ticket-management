@@ -1,0 +1,37 @@
+import { Request, Response, NextFunction } from 'express';
+import { validationResult, FieldValidationError } from 'express-validator';
+
+export function validateRequest(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    const formattedErrors = errors.array().map((err) => {
+      // In express-validator v7, we check for type 'field' to access the path
+      if (err.type === 'field') {
+        const fieldError = err as FieldValidationError;
+        return {
+          field: fieldError.path,
+          message: fieldError.msg,
+        };
+      }
+      // Fallback for global/schema errors
+      return {
+        field: 'global',
+        message: err.msg,
+      };
+    });
+
+    res.status(400).json({
+      success: false,
+      message: 'Validation Error',
+      data: formattedErrors,
+    });
+    return;
+  }
+
+  next();
+};

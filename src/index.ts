@@ -1,21 +1,32 @@
+import 'dotenv/config';
 import express from 'express';
-import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser'; 
+import cookieParser from 'cookie-parser';
+import passport from 'passport';
 import authRoutes from './routes/auth.routes.ts';
 import connectDB from './config/database.ts';
+
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.ts';
+import { jwtStrategy } from './config/passport.ts';
 
-dotenv.config();
-
-const app = express();
-
+// Connect to the database
 connectDB();
 
-app.use(express.json());
-app.use(cookieParser()); 
+// Create Express app
+const app = express();
 
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+
+app.use(passport.initialize());
+passport.use(jwtStrategy);
+
+
+
+// Routes
 app.use('/api/auth', authRoutes);
 
+// Error handling middleware
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 

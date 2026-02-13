@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/user.model.ts';
 import type { IUser } from '../models/user.model.ts';
-import { generateAccessToken, generateRefreshToken } from '../utils/jwt.ts';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.ts';
 import { RefreshToken } from '../models/refreshToken.model.ts';
 import AppError from '../utils/app.error.ts';
 
@@ -11,7 +11,11 @@ async function createAndStoreRefreshToken(userId: string) {
   // Calculate expiry date (7 days from now)
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-  await RefreshToken.create({ token, user: userId, expiresAt });
+  await RefreshToken.findOneAndUpdate(
+    { user: userId },
+    { token, user: userId, expiresAt },
+    { upsert: true, new: true }
+  );
   return token;
 }
 
@@ -64,4 +68,36 @@ export async function logoutService(refreshToken: string) {
   if (!deletedToken) {
     throw new AppError('Invalid refresh token', 400);
   }
+}
+
+export async function refreshTokenService(incomingToken: string) {
+  if (!incomingToken) {
+    throw new AppError('Refresh Token is required', 400);
+  }
+
+  // Verify the signature of the token
+  // If invalid/expired, verifyRefreshToken usually throws an error
+  const decoded = verifyRefreshToken(incomingToken);
+
+  // Check if this token exists in the DB and hasn't been revoked
+  const tokenRecord = await RefreshToken.findOne({
+    token: incomingToken,
+    user: decoded.id
+  });
+
+  if (!tokenRecord) {
+    throw new AppError('Invalid Refresh Token (not found in DB)', 403);
+  }
+
+  // Check if expired
+  if (tokenRecord.expiresAt.getTime() < Date.now()) {
+    await RefreshToken.deleteOne({ _id: tokenRecord._id });
+    throw new AppError('Refresh Token expired', 403);
+  }
+
+  // Generate a NEW Access Token
+  const accessToken = generateAccessToken(decoded.id);
+  const refreshToken = await createAndStoreRefreshToken(decoded.id);
+
+  return { accessToken, refreshToken };
 }

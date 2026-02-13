@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
-import { registerService, loginService, logoutService } from '../services/auth.service.ts';
+import { registerService, loginService, logoutService, refreshTokenService } from '../services/auth.service.ts';
+import AppError from '../utils/app.error.ts';
 
 // Helper for setting cookies for access and refresh tokens
 function setCookies(res: Response, accessToken: string, refreshToken: string) {
@@ -60,6 +61,27 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     res.clearCookie('refreshToken');
 
     res.status(200).json({ success: true, message: 'Logged out successfully' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function refresh(req: Request, res: Response, next: NextFunction) {
+  try {
+    // Get the refresh token from the cookie
+    const incomingRefreshToken = req.cookies.refreshToken;
+
+    if (!incomingRefreshToken) {
+      throw new AppError('No refresh token provided', 401);
+    }
+
+    // Call the service
+    const { accessToken, refreshToken } = await refreshTokenService(incomingRefreshToken);
+
+    // Set new cookies
+    setCookies(res, accessToken, refreshToken);
+
+    res.status(200).json({ success: true, message: 'Access token refreshed' });
   } catch (error) {
     next(error);
   }

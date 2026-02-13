@@ -7,22 +7,23 @@ export interface IRefreshToken extends Document {
 }
 
 const refreshTokenSchema = new Schema<IRefreshToken>({
-  token: { 
-    type: String, 
-    required: true 
+  token: {
+    type: String,
+    required: true
   },
-  user: { 
-    type: Schema.Types.ObjectId, 
-    ref: 'User', 
-    required: true 
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    unique: true
   },
-  expiresAt: { 
-    type: Date, 
-    required: true, 
-    index: { 
-      expires: '7d' 
-    } 
-  } 
+  expiresAt: {
+    type: Date,
+    required: true,
+    index: {
+      expires: '7d'
+    }
+  }
 });
 
 export const RefreshToken = mongoose.model<IRefreshToken>('RefreshToken', refreshTokenSchema);

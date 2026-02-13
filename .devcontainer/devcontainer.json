@@ -15,12 +15,12 @@
 		"vscode": {
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
-				"mongodb.mongodb-vscode"
+				"mongodb.mongodb-vscode",
+				"solomonkinard.git-blame"
 			]
 		}
 	},
-
 	"forwardPorts": [3000, 27017],
-	"postCreateCommand": "yarn install",
+	"postCreateCommand": "npm install",
 	"remoteUser": "root"
 }

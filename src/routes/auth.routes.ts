@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { register, login, logout } from '../controller/auth.controller.ts';
 import { registerValidator, loginValidator } from '../validators/auth.validator.ts';
-import { validateRequest } from '../middlewares/validate.ts';
+import { validateRequest } from '../middlewares/validate.middleware.ts';
 
 const router = Router();
 

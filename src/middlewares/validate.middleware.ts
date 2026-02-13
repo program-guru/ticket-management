@@ -11,7 +11,6 @@ export function validateRequest(
 
   if (!errors.isEmpty()) {
     const formattedErrors = errors.array().map((err) => {
-      // In express-validator v7, we check for type 'field' to access the path
       if (err.type === 'field') {
         const fieldError = err as FieldValidationError;
         return {

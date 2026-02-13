@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import AppError from './app.error.ts';
 
 interface TokenPayload {
   id: string;
@@ -6,7 +7,7 @@ interface TokenPayload {
 
 export const generateAccessToken = (id: string): string => {
   if (!process.env.JWT_ACCESS_SECRET) {
-    throw new Error('JWT_ACCESS_SECRET is not defined');
+    throw new AppError('JWT_ACCESS_SECRET is not defined', 500);
   }
 
   return jwt.sign({ id }, process.env.JWT_ACCESS_SECRET, {
@@ -16,7 +17,7 @@ export const generateAccessToken = (id: string): string => {
 
 export const generateRefreshToken = (id: string): string => {
   if (!process.env.JWT_REFRESH_SECRET) {
-    throw new Error('JWT_REFRESH_SECRET is not defined');
+    throw new AppError('JWT_REFRESH_SECRET is not defined', 500);
   }
 
   return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, {
@@ -26,7 +27,7 @@ export const generateRefreshToken = (id: string): string => {
 
 export const verifyRefreshToken = (token: string): TokenPayload => {
   if (!process.env.JWT_REFRESH_SECRET) {
-    throw new Error('JWT_REFRESH_SECRET is not defined');
+    throw new AppError('JWT_REFRESH_SECRET is not defined', 500);
   }
   return jwt.verify(token, process.env.JWT_REFRESH_SECRET) as TokenPayload;
 };  

@@ -16,8 +16,12 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     if (!user) {
       // Differentiate between "No Token" and "Expired Token" for clarity
       let message = 'You are not logged in! Please log in to get access.';
+      
       if (info && info.name === 'TokenExpiredError') {
         message = 'Your token has expired! Please log in again.';
+      }
+      if (info && info.name === 'JsonWebTokenError') {
+        message = 'Invalid token. Please log in again!';
       }
       return next(new AppError(message, 401));
     }
@@ -32,9 +36,9 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
 export const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-        return next(new AppError('User not authenticated', 401));
+      return next(new AppError('User not authenticated', 401));
     }
-    
+
     // We need to cast req.user to IUser to access the .role property
     const user = req.user as IUser;
 

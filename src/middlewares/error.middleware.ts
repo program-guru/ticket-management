@@ -31,7 +31,7 @@ export const globalErrorHandler = (
       field: val.path,
       message: val.message,
     }));
-    
+
     // We send the response immediately here to keep the 'data' format consistent
     return res.status(400).json({
       success: false,
@@ -50,20 +50,12 @@ export const globalErrorHandler = (
         message: `${field} '${err.keyValue[field]}' already exists.`,
       },
     ];
-    
+
     return res.status(400).json({
       success: false,
       message,
       data: errors,
     });
-  }
-
-  // 4. Handle JWT Errors
-  if (err.name === 'JsonWebTokenError') {
-    error = new AppError('Invalid token. Please log in again!', 401);
-  }
-  if (err.name === 'TokenExpiredError') {
-    error = new AppError('Your token has expired! Please log in again.', 401);
   }
 
   // --- Default Error Response ---
@@ -73,7 +65,7 @@ export const globalErrorHandler = (
   const response: ErrorResponse = {
     success: false,
     message: message,
-    data: null, 
+    data: null,
   };
 
   res.status(statusCode).json(response);

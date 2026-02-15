@@ -14,7 +14,7 @@ async function createAndStoreRefreshToken(userId: string) {
   await RefreshToken.findOneAndUpdate(
     { user: userId },
     { token, user: userId, expiresAt },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: 'after' }
   );
   return token;
 }

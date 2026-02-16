@@ -5,6 +5,7 @@ import passport from 'passport';
 import authRoutes from './routes/auth.routes.ts';
 import userRoutes from './routes/user.routes.ts';
 import ticketRoutes from './routes/ticket.routes.ts';
+import commentRoutes from './routes/comment.routes.ts';
 import connectDB from './config/database.ts';
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.ts';
 import { ticketAssignmentJob } from './jobs/ticketAssignment.job.ts';
@@ -30,6 +31,7 @@ passport.use(jwtStrategy);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);

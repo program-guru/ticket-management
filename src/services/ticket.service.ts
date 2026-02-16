@@ -23,7 +23,7 @@ export async function findLeastBusyAgent(): Promise<IUser | null> {
     // This adds an array field 'allAssignedTickets' to each agent document
     {
       $lookup: {
-        from: 'tickets', 
+        from: 'tickets',
         localField: '_id',
         foreignField: 'assignedTo',
         as: 'allAssignedTickets',
@@ -76,18 +76,41 @@ export async function createTicketService(ticketData: Partial<ITicket>) {
 
   const ticket = await Ticket.create({
     ...ticketData,
-    status: 'Open',       
-    assignedTo: null,     
+    status: 'Open',
+    assignedTo: null,
   });
 
   return ticket;
 }
 
-export async function getTicketsService(currentUser: IUser, filters: TicketFilters) {
-  if(!currentUser) {
+export async function getTicketsService(currentUser: IUser, filters: TicketFilters = {}, ticketId?: string) {
+  if (!currentUser) {
     throw new AppError('User information is required to fetch tickets', 400);
   }
 
+  // Fetch Single Ticket (if ID provided)
+  if (ticketId) {
+    const ticket = await Ticket.findById(ticketId)
+      .populate('customer', 'name email')
+      .populate('assignedTo', 'name email');
+
+    if (!ticket) {
+      throw new AppError('Ticket not found', 404);
+    }
+
+    // Authorization check
+    if (currentUser.role === 'Customer' && ticket.customer?._id.toString() !== currentUser._id.toString()) {
+      throw new AppError('You are not authorized to view this ticket', 403);
+    }
+
+    if (currentUser.role === 'Agent' && ticket.assignedTo?._id.toString() !== currentUser._id.toString()) {
+      throw new AppError('You are not authorized to view this ticket', 403);
+    }
+
+    return ticket;
+  }
+
+  // Fetch List of Tickets
   // Base Query Construction
   const query: any = {};
 

@@ -5,7 +5,7 @@ import type { IUser } from '../models/user.model.ts';
 export async function createTicket(req: Request, res: Response, next: NextFunction) {
   try {
     const { title, description, priority } = req.body;
-    
+
     // The user is attached to req by the 'authenticate' middleware
     const user = req.user as IUser;
 
@@ -29,6 +29,7 @@ export async function createTicket(req: Request, res: Response, next: NextFuncti
 export async function getTickets(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user as IUser;
+    const ticketId = req.params.id as string | undefined;
 
     // Extract filters from query string
     const filters = {
@@ -36,12 +37,17 @@ export async function getTickets(req: Request, res: Response, next: NextFunction
       priority: req.query.priority as string,
     };
 
-    const tickets = await getTicketsService(user, filters);
+    const data = await getTicketsService(user, filters, ticketId);
+
+    // If getting list, return count message
+    const message = Array.isArray(data)
+      ? `Found ${data.length} tickets`
+      : 'Ticket found';
 
     res.status(200).json({
       success: true,
-      message: `Found ${tickets.length} tickets`,
-      data: tickets,
+      message,
+      data,
     });
   } catch (error) {
     next(error);

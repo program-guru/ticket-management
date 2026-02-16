@@ -16,6 +16,6 @@ router.post(
   createTicket
 );
 
-router.get('/', validateRequest, getTickets);
+router.get(['/', '/:id'], validateRequest, getTickets);
 
 export default router;

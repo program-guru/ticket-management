@@ -40,4 +40,10 @@ export const updateTicketValidator = [
     .trim()
     .isIn(['Low', 'Medium', 'High'])
     .withMessage('Priority must be Low, Medium, or High'),
+
+  body('status')
+    .optional()
+    .trim()
+    .isIn(['Open', 'In Progress', 'Resolved', 'Closed'])
+    .withMessage('Status must be Open, In Progress, Resolved, or Closed'),
 ];

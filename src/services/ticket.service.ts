@@ -173,22 +173,45 @@ export async function updateTicketService(ticketId: string, updateData: Partial<
     throw new AppError('Ticket not found', 404);
   }
 
-  // Authorization: Only Admin or the Customer who owns the ticket can update
-  if (currentUser.role === 'Admin' || (currentUser.role === 'Customer' && ticket.customer.toString() === currentUser._id.toString())) {
-    
-    // Only allow updating title, description, and priority
-    const safeUpdateData: Partial<ITicket> = {};
+  const safeUpdateData: Partial<ITicket> = {};
+  
+  // Identify User Role & Capabilities
+  const isOwner = currentUser.role === 'Customer' && ticket.customer.toString() === currentUser._id.toString();
+  const isAssignedAgent = currentUser.role === 'Agent' && ticket.assignedTo?.toString() === currentUser._id.toString();
+  const isAdmin = currentUser.role === 'Admin';
+  
+  // Handle Title, Description, Priority Updates
+  // Allowed for: Admin OR Customer (who owns the ticket)
+  if (isAdmin || isOwner) {
     if (updateData.title) safeUpdateData.title = updateData.title;
     if (updateData.description) safeUpdateData.description = updateData.description;
     if (updateData.priority) safeUpdateData.priority = updateData.priority;
-    
-    const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, safeUpdateData, {
-      new: true,
-      runValidators: true,
-    }).populate('customer', 'name email').populate('assignedTo', 'name email');
-
-    return updatedTicket;
+  }
+  
+  // Handle Status Updates
+  if (updateData.status) {
+      if (isAdmin || isAssignedAgent) {
+          if (ticket.status === 'In Progress' && updateData.status === 'Resolved') {
+              safeUpdateData.status = updateData.status;
+          } else {
+              throw new AppError('Status can only be changed from In Progress to Resolved', 400); 
+          }
+      }
+      // Customers cannot update status
   }
 
-  throw new AppError('You are not authorized to update this ticket', 403);
+  // If safeUpdateData is empty, it means either:
+  // a) User provided no data to update.
+  // b) User provided data they are not authorized to update (e.g. Agent trying to change title).
+  if (Object.keys(safeUpdateData).length === 0) {
+      // Nothing to update, return the ticket as is.
+      return ticket;
+  }
+
+  const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, safeUpdateData, {
+    new: true,
+    runValidators: true,
+  }).populate('customer', 'name email').populate('assignedTo', 'name email');
+
+  return updatedTicket;
 }

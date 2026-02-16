@@ -11,6 +11,6 @@ router.use(authenticate);
 router.post('/', authorize('Customer'), createTicketValidator, validateRequest, createTicket);
 router.get(['/', '/:id'], validateRequest, getTickets);
 router.delete('/:id', authorize('Customer', 'Admin'), validateRequest, deleteTicket);
-router.put('/:id', authorize('Customer', 'Admin'), updateTicketValidator, validateRequest, updateTicket);
+router.put('/:id', updateTicketValidator, validateRequest, updateTicket);
 
 export default router;

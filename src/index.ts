@@ -3,6 +3,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import authRoutes from './routes/auth.routes.ts';
+import userRoutes from './routes/user.routes.ts';
 import connectDB from './config/database.ts';
 
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.ts';
@@ -21,9 +22,8 @@ app.use(cookieParser());
 app.use(passport.initialize());
 passport.use(jwtStrategy);
 
-
-
 // Routes
+app.use('/api', userRoutes);
 app.use('/api/auth', authRoutes);
 
 // Error handling middleware

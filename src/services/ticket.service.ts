@@ -165,3 +165,30 @@ export async function deleteTicketService(ticketId: string, currentUser: IUser) 
 
   throw new AppError('You are not authorized to delete this ticket', 403);
 }
+
+export async function updateTicketService(ticketId: string, updateData: Partial<ITicket>, currentUser: IUser) {
+  const ticket = await Ticket.findById(ticketId);
+
+  if (!ticket) {
+    throw new AppError('Ticket not found', 404);
+  }
+
+  // Authorization: Only Admin or the Customer who owns the ticket can update
+  if (currentUser.role === 'Admin' || (currentUser.role === 'Customer' && ticket.customer.toString() === currentUser._id.toString())) {
+    
+    // Only allow updating title, description, and priority
+    const safeUpdateData: Partial<ITicket> = {};
+    if (updateData.title) safeUpdateData.title = updateData.title;
+    if (updateData.description) safeUpdateData.description = updateData.description;
+    if (updateData.priority) safeUpdateData.priority = updateData.priority;
+    
+    const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, safeUpdateData, {
+      new: true,
+      runValidators: true,
+    }).populate('customer', 'name email').populate('assignedTo', 'name email');
+
+    return updatedTicket;
+  }
+
+  throw new AppError('You are not authorized to update this ticket', 403);
+}

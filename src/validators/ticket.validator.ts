@@ -19,3 +19,25 @@ export const createTicketValidator = [
     .isIn(['Low', 'Medium', 'High'])
     .withMessage('Priority must be Low, Medium, or High'),
 ];
+
+export const updateTicketValidator = [
+  body('title')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('Title cannot be empty')
+    .isLength({ max: 100 })
+    .withMessage('Title cannot exceed 100 characters'),
+
+  body('description')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('Description cannot be empty'),
+
+  body('priority')
+    .optional()
+    .trim()
+    .isIn(['Low', 'Medium', 'High'])
+    .withMessage('Priority must be Low, Medium, or High'),
+];

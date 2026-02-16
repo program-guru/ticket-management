@@ -4,6 +4,11 @@ import type { IUser } from '../models/user.model.ts';
 import type { ITicket } from '../models/ticket.model.ts';
 import AppError from '../utils/app.error.ts';
 
+interface TicketFilters {
+  status?: string;
+  priority?: string;
+}
+
 // Finds the Agent with the fewest "In Progress" tickets.
 export async function findLeastBusyAgent(): Promise<IUser | null> {
   const result = await User.aggregate([
@@ -76,4 +81,42 @@ export async function createTicketService(ticketData: Partial<ITicket>) {
   });
 
   return ticket;
+}
+
+export async function getTicketsService(currentUser: IUser, filters: TicketFilters) {
+  if(!currentUser) {
+    throw new AppError('User information is required to fetch tickets', 400);
+  }
+
+  // Base Query Construction
+  const query: any = {};
+
+  // 2. Apply Role-Based Scoping
+  // CUSTOMER: Can only see tickets they created
+  if (currentUser.role === 'Customer') {
+    query.customer = currentUser._id;
+  }
+  // AGENT: Can only see tickets assigned to them
+  else if (currentUser.role === 'Agent') {
+    query.assignedTo = currentUser._id;
+  }
+  // ADMIN: No restrictions (sees all), so we don't add an ID filter.
+
+  // 3. Apply Optional Filters (if provided in URL query)
+  if (filters.status) {
+    query.status = filters.status;
+  }
+  if (filters.priority) {
+    query.priority = filters.priority;
+  }
+
+  // 4. Execute Query
+  // .populate() fills in the details for the 'customer' and 'assignedTo' IDs
+  // .sort() shows newest tickets first
+  const tickets = await Ticket.find(query)
+    .populate('customer', 'name email')
+    .populate('assignedTo', 'name email')
+    .sort({ createdAt: -1 });
+
+  return tickets;
 }

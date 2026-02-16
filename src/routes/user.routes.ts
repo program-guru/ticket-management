@@ -9,7 +9,7 @@ router.use(authenticate);
 router.use(validateRequest); 
 
 router.get('/', authorize('Admin'), users);
-router.get('/:id', authorize('Admin'), user);
 router.get('/profile', profile);
+router.get('/:id', authorize('Admin'), user);
 
 export default router;

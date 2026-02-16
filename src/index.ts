@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes.ts';
 import userRoutes from './routes/user.routes.ts';
 import ticketRoutes from './routes/ticket.routes.ts';
 import commentRoutes from './routes/comment.routes.ts';
+import reportRoutes from './routes/report.route.ts';
 import connectDB from './config/database.ts';
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.ts';
 import { ticketAssignmentJob } from './jobs/ticketAssignment.job.ts';
@@ -34,6 +35,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Error handling middleware
 app.use(notFoundHandler);

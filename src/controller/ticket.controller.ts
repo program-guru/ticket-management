@@ -57,7 +57,7 @@ export async function getTickets(req: Request, res: Response, next: NextFunction
 export async function deleteTicket(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user as IUser;
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     await deleteTicketService(id, user);
 
@@ -73,7 +73,7 @@ export async function deleteTicket(req: Request, res: Response, next: NextFuncti
 export async function updateTicket(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user as IUser;
-    const { id } = req.params;
+    const id = req.params.id as string;
     const updateData = req.body;
 
     const ticket = await updateTicketService(id, updateData, user);

@@ -5,8 +5,11 @@ import { users, user, profile } from '../controller/user.controller.ts';
 
 const router = Router();
 
-router.get('/users', validateRequest, authenticate, authorize('Admin'), users);
-router.get('/user/:id', validateRequest, authenticate, authorize('Admin'), user);
-router.get('/profile', validateRequest, authenticate, profile);
+router.use(authenticate); 
+router.use(validateRequest); 
+
+router.get('/', authorize('Admin'), users);
+router.get('/:id', authorize('Admin'), user);
+router.get('/profile', profile);
 
 export default router;

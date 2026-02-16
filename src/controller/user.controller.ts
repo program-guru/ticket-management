@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import AppError from '../utils/app.error.ts';
-import { getAllUsersService, getUserByIdService } from '../services/users.service.ts';
+import { getAllUsersService, getUserByIdService } from '../services/user.service.ts';
 
 export async function users(req: Request, res: Response, next: NextFunction) {
   try {

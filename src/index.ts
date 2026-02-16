@@ -23,7 +23,7 @@ app.use(passport.initialize());
 passport.use(jwtStrategy);
 
 // Routes
-app.use('/api', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 
 // Error handling middleware

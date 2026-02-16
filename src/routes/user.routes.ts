@@ -9,6 +9,6 @@ router.use(authenticate);
 router.use(validateRequest);
 
 router.get('/profile', getProfile);
-router.get('/:id?', authorize('Admin'), getUsers);
+router.get(['/', '/:id'], authorize('Admin'), getUsers);
 
 export default router;

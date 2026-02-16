@@ -33,26 +33,54 @@ export async function createCommentService(content: string, ticketId: string, us
 }
 
 export async function getCommentsService(ticketId: string, user: IUser): Promise<IComment[]> {
-  // Check if ticket exists
-  const ticket = await Ticket.findById(ticketId);
-  if (!ticket) {
-    throw new AppError('Ticket not found', 404);
-  }
-
-  // Access control
-  if (user.role === 'Customer' && ticket.customer.toString() !== user._id.toString()) {
-    throw new AppError('You are not authorized to view comments for this ticket', 403);
-  }
-
-  if (user.role === 'Agent') {
-    if (!ticket.assignedTo || ticket.assignedTo.toString() !== user._id.toString()) {
+  if(ticketId) {
+    // Check if ticket exists
+    const ticket = await Ticket.findById(ticketId);
+    if (!ticket) {
+      throw new AppError('Ticket not found', 404);
+    }
+  
+    // Access control
+    if (user.role === 'Customer' && ticket.customer.toString() !== user._id.toString()) {
       throw new AppError('You are not authorized to view comments for this ticket', 403);
     }
+  
+    if (user.role === 'Agent') {
+      if (!ticket.assignedTo || ticket.assignedTo.toString() !== user._id.toString()) {
+        throw new AppError('You are not authorized to view comments for this ticket', 403);
+      }
+    }
+  
+    const comments = await Comment.find({ ticket: ticketId })
+      .populate('author', 'name email role')
+      .sort({ createdAt: -1 });
+  
+    return comments;
   }
 
-  const comments = await Comment.find({ ticket: ticketId })
-    .populate('author', 'name email role')
-    .sort({ createdAt: -1 });
+  // If no ticketId provided, return all comments user has access to
+  let comments: IComment[] = [];
+  if (user.role === 'Admin') {
+    comments = await Comment.find()
+      .populate('author', 'name email role')
+      .sort({ createdAt: -1 });
+  } 
+  else if (user.role === 'Agent') {
+    const tickets = await Ticket.find({ assignedTo: user._id });
+
+    const ticketIds = tickets.map(ticket => ticket._id);
+      comments = await Comment.find({ ticket: { $in: ticketIds } })
+      .populate('author', 'name email role')
+      .sort({ createdAt: -1 });
+  } 
+  else if (user.role === 'Customer') {
+    const tickets = await Ticket.find({ customer: user._id });
+
+    const ticketIds = tickets.map(ticket => ticket._id);
+    comments = await Comment.find({ ticket: { $in: ticketIds } })
+      .populate('author', 'name email role')
+      .sort({ createdAt: -1 });
+  }
 
   return comments;
 }

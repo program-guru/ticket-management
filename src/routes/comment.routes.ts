@@ -17,7 +17,7 @@ const router = Router();
 router.use(authenticate);
 
 router.post('/', createCommentValidator, validateRequest, createComment);
-router.get('/ticket/:ticketId', getComments);
+router.get('/', getComments);
 router.put('/:id', updateCommentValidator, validateRequest, updateComment);
 router.delete('/:id', deleteComment);
 

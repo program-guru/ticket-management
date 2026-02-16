@@ -26,7 +26,7 @@ export async function createComment(req: Request, res: Response, next: NextFunct
 
 export async function getComments(req: Request, res: Response, next: NextFunction) {
   try {
-    const { ticketId } = req.params;
+    const { ticketId } = req.query.ticketId as string;
     const user = req.user as IUser;
     const comments = await getCommentsService(ticketId, user);
 

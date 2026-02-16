@@ -9,6 +9,7 @@ import commentRoutes from './routes/comment.routes.ts';
 import connectDB from './config/database.ts';
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.ts';
 import { ticketAssignmentJob } from './jobs/ticketAssignment.job.ts';
+import { ticketClosingJob } from './jobs/ticketClosing.job.ts';
 import { jwtStrategy } from './config/passport.ts';
 
 // Connect to the database
@@ -16,6 +17,7 @@ connectDB();
 
 // Start background jobs
 ticketAssignmentJob.start();
+ticketClosingJob.start();
 
 // Create Express app
 const app = express();

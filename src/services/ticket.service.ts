@@ -193,6 +193,7 @@ export async function updateTicketService(ticketId: string, updateData: Partial<
       if (isAdmin || isAssignedAgent) {
           if (ticket.status === 'In Progress' && updateData.status === 'Resolved') {
               safeUpdateData.status = updateData.status;
+              safeUpdateData.resolvedAt = new Date();
           } else {
               throw new AppError('Status can only be changed from In Progress to Resolved', 400); 
           }

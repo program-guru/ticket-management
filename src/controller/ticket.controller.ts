@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { createTicketService, getTicketsService } from '../services/ticket.service.ts';
+import { createTicketService, getTicketsService, deleteTicketService } from '../services/ticket.service.ts';
 import type { IUser } from '../models/user.model.ts';
 
 export async function createTicket(req: Request, res: Response, next: NextFunction) {
@@ -48,6 +48,22 @@ export async function getTickets(req: Request, res: Response, next: NextFunction
       success: true,
       message,
       data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteTicket(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = req.user as IUser;
+    const { id } = req.params;
+
+    await deleteTicketService(id, user);
+
+    res.status(200).json({
+      success: true,
+      message: 'Ticket deleted successfully',
     });
   } catch (error) {
     next(error);

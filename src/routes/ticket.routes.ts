@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createTicket, getTickets } from '../controller/ticket.controller.ts';
+import { createTicket, getTickets, deleteTicket } from '../controller/ticket.controller.ts';
 import { createTicketValidator } from '../validators/ticket.validator.ts';
 import { validateRequest } from '../middlewares/validate.middleware.ts';
 import { authenticate, authorize } from '../middlewares/auth.middleware.ts';
@@ -8,14 +8,8 @@ const router = Router();
 
 router.use(authenticate);
 
-router.post(
-  '/',
-  authorize('Customer'),
-  createTicketValidator,
-  validateRequest,
-  createTicket
-);
-
+router.post('/', authorize('Customer'), createTicketValidator, validateRequest, createTicket);
 router.get(['/', '/:id'], validateRequest, getTickets);
+router.delete('/:id', validateRequest, deleteTicket);
 
 export default router;

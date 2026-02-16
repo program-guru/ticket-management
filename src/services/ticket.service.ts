@@ -143,3 +143,25 @@ export async function getTicketsService(currentUser: IUser, filters: TicketFilte
 
   return tickets;
 }
+
+export async function deleteTicketService(ticketId: string, currentUser: IUser) {
+  const ticket = await Ticket.findById(ticketId);
+
+  if (!ticket) {
+      throw new AppError('Ticket not found', 404);
+  }
+
+  // Admin can delete any ticket
+  if (currentUser.role === 'Admin') {
+      await ticket.deleteOne();
+      return;
+  }
+
+  // Check if Customer owns the ticket
+  if (currentUser.role === 'Customer' && ticket.customer.toString() === currentUser._id.toString()) {
+      await ticket.deleteOne();
+      return;
+  }
+
+  throw new AppError('You are not authorized to delete this ticket', 403);
+}

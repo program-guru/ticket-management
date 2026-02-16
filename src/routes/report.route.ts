@@ -6,6 +6,25 @@ const router = Router();
 
 router.use(authenticate);
 
+/**
+ * @swagger
+ * tags:
+ *   name: Reports
+ *   description: System reports
+ */
+
+/**
+ * @swagger
+ * /reports:
+ *   get:
+ *     summary: Get dashboard reports (Admin only)
+ *     tags: [Reports]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Report data
+ */
 router.get('/', authorize('Admin'), getReports);
 
 export default router;

@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger.ts';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import authRoutes from './routes/auth.routes.ts';
@@ -26,6 +28,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(passport.initialize());
 passport.use(jwtStrategy);

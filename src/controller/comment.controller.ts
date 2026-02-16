@@ -26,7 +26,7 @@ export async function createComment(req: Request, res: Response, next: NextFunct
 
 export async function getComments(req: Request, res: Response, next: NextFunction) {
   try {
-    const { ticketId } = req.query.ticketId as string;
+    const ticketId = req.query.ticketId as string;
     const user = req.user as IUser;
     const comments = await getCommentsService(ticketId, user);
 
@@ -42,7 +42,7 @@ export async function getComments(req: Request, res: Response, next: NextFunctio
 
 export async function updateComment(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { content } = req.body;
     const user = req.user as IUser;
 
@@ -60,7 +60,7 @@ export async function updateComment(req: Request, res: Response, next: NextFunct
 
 export async function deleteComment(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const user = req.user as IUser;
 
     await deleteCommentService(id, user);

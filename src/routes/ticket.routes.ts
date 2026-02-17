@@ -45,7 +45,7 @@ router.use(authenticate);
  *       201:
  *         description: Ticket created successfully
  */
-router.post('/', authorize('Customer'), createTicketValidator, validateRequest, createTicket);
+router.post('/', authorize('Customer', 'Admin'), createTicketValidator, validateRequest, createTicket);
 
 /**
  * @swagger

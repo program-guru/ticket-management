@@ -10,6 +10,7 @@ import ticketRoutes from './routes/ticket.routes.ts';
 import commentRoutes from './routes/comment.routes.ts';
 import reportRoutes from './routes/report.route.ts';
 import connectDB from './config/database.ts';
+import rateLimiter from './config/rateLimit.ts';
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.ts';
 import { ticketAssignmentJob } from './jobs/ticketAssignment.job.ts';
 import { ticketClosingJob } from './jobs/ticketClosing.job.ts';
@@ -28,8 +29,8 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(rateLimiter);
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
 app.use(passport.initialize());
 passport.use(jwtStrategy);
 

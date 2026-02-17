@@ -149,38 +149,38 @@ export async function deleteTicketService(ticketId: string, currentUser: IUser) 
   const ticket = await Ticket.findById(ticketId);
 
   if (!ticket) {
-      throw new AppError('Ticket not found', 404);
+    throw new AppError('Ticket not found', 404);
   }
 
   // Admin can delete any ticket
   if (currentUser.role === 'Admin') {
-      await ticket.deleteOne();
-      return;
+    await ticket.deleteOne();
+    return;
   }
 
   // Check if Customer owns the ticket
   if (currentUser.role === 'Customer' && ticket.customer.toString() === currentUser._id.toString()) {
-      await ticket.deleteOne();
-      return;
+    await ticket.deleteOne();
+    return;
   }
 
   throw new AppError('You are not authorized to delete this ticket', 403);
 }
 
 export async function updateTicketService(ticketId: string, updateData: Partial<ITicket>, currentUser: IUser) {
-  const ticket = await Ticket.findById(ticketId).populate('customer');
+  const ticket = await Ticket.findById(ticketId).populate('customer assignedTo');
 
   if (!ticket) {
     throw new AppError('Ticket not found', 404);
   }
 
   const safeUpdateData: Partial<ITicket> = {};
-  
+
   // Identify User Role & Capabilities
-  const isOwner = currentUser.role === 'Customer' && ticket.customer.toString() === currentUser._id.toString();
-  const isAssignedAgent = currentUser.role === 'Agent' && ticket.assignedTo?.toString() === currentUser._id.toString();
+  const isOwner = currentUser.role === 'Customer' && ticket.customer._id.toString() === currentUser._id.toString();
+  const isAssignedAgent = currentUser.role === 'Agent' && ticket.assignedTo?._id.toString() === currentUser._id.toString();
   const isAdmin = currentUser.role === 'Admin';
-  
+
   // Handle Title, Description, Priority Updates
   // Allowed for: Admin OR Customer (who owns the ticket)
   if (isAdmin || isOwner) {
@@ -188,34 +188,34 @@ export async function updateTicketService(ticketId: string, updateData: Partial<
     if (updateData.description) safeUpdateData.description = updateData.description;
     if (updateData.priority) safeUpdateData.priority = updateData.priority;
   }
-  
+
   // Handle Status Updates
   if (updateData.status) {
-      if (isAdmin || isAssignedAgent) {
-          if (ticket.status === 'In Progress' && updateData.status === 'Resolved') {
-              safeUpdateData.status = updateData.status;
-              safeUpdateData.resolvedAt = new Date();
-              notifyTicketUpdate(ticket.customer as IUser, ticket);
-          } else {
-              throw new AppError('Status can only be changed from In Progress to Resolved', 400); 
-          }
+    if (isAdmin || isAssignedAgent) {
+      if (ticket.status === 'In Progress' && updateData.status === 'Resolved') {
+        safeUpdateData.status = updateData.status;
+        safeUpdateData.resolvedAt = new Date();
+        notifyTicketUpdate(ticket.customer as IUser, ticket);
+      } else {
+        throw new AppError('Status can only be changed from In Progress to Resolved', 400);
       }
-      // Customers cannot update status
-      else {
-          throw new AppError('You are not authorized to update the status of this ticket', 403);
-      }
+    }
+    // Customers cannot update status
+    else {
+      throw new AppError('You are not authorized to update the status of this ticket', 403);
+    }
   }
 
   // If safeUpdateData is empty, it means either:
   // a) User provided no data to update.
   // b) User provided data they are not authorized to update (e.g. Agent trying to change title).
   if (Object.keys(safeUpdateData).length === 0) {
-      // Nothing to update, return the ticket as is.
-      return ticket;
+    // Nothing to update, return the ticket as is.
+    return ticket;
   }
 
   const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, safeUpdateData, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   }).populate('customer', 'name email').populate('assignedTo', 'name email');
 

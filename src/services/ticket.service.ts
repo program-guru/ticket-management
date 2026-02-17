@@ -201,6 +201,9 @@ export async function updateTicketService(ticketId: string, updateData: Partial<
           }
       }
       // Customers cannot update status
+      else {
+          throw new AppError('You are not authorized to update the status of this ticket', 403);
+      }
   }
 
   // If safeUpdateData is empty, it means either:

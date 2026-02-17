@@ -182,11 +182,15 @@ export async function updateTicketService(ticketId: string, updateData: Partial<
   const isAdmin = currentUser.role === 'Admin';
 
   // Handle Title, Description, Priority Updates
-  // Allowed for: Admin OR Customer (who owns the ticket)
-  if (isAdmin || isOwner) {
-    if (updateData.title) safeUpdateData.title = updateData.title;
-    if (updateData.description) safeUpdateData.description = updateData.description;
-    if (updateData.priority) safeUpdateData.priority = updateData.priority;
+  if(updateData.title || updateData.description || updateData.priority) {
+    if (isOwner || isAdmin) {
+      if (updateData.title) safeUpdateData.title = updateData.title;
+      if (updateData.description) safeUpdateData.description = updateData.description;
+      if (updateData.priority) safeUpdateData.priority = updateData.priority;
+    }
+    else {
+      throw new AppError('You are not authorized to update the title, description, or priority of this ticket', 403);
+    }
   }
 
   // Handle Status Updates

@@ -2,6 +2,7 @@ import User from '../models/user.model.ts';
 import Ticket from '../models/ticket.model.ts';
 import type { IUser } from '../models/user.model.ts';
 import type { ITicket } from '../models/ticket.model.ts';
+import { notifyTicketUpdate } from './email.service.ts';
 import AppError from '../utils/app.error.ts';
 
 interface TicketFilters {
@@ -167,7 +168,7 @@ export async function deleteTicketService(ticketId: string, currentUser: IUser) 
 }
 
 export async function updateTicketService(ticketId: string, updateData: Partial<ITicket>, currentUser: IUser) {
-  const ticket = await Ticket.findById(ticketId);
+  const ticket = await Ticket.findById(ticketId).populate('customer');
 
   if (!ticket) {
     throw new AppError('Ticket not found', 404);
@@ -194,6 +195,7 @@ export async function updateTicketService(ticketId: string, updateData: Partial<
           if (ticket.status === 'In Progress' && updateData.status === 'Resolved') {
               safeUpdateData.status = updateData.status;
               safeUpdateData.resolvedAt = new Date();
+              notifyTicketUpdate(ticket.customer as IUser, ticket);
           } else {
               throw new AppError('Status can only be changed from In Progress to Resolved', 400); 
           }

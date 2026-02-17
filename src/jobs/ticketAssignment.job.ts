@@ -1,6 +1,8 @@
 import cron from 'node-cron';
 import Ticket from '../models/ticket.model.ts';
 import { findLeastBusyAgent } from '../services/ticket.service.ts';
+import { notifyTicketUpdate } from '../services/email.service.ts';
+import type { IUser } from '../models/user.model.ts';
 
 // Run every minute
 export const ticketAssignmentJob = cron.schedule('0 * * * * *', async () => {
@@ -12,7 +14,9 @@ export const ticketAssignmentJob = cron.schedule('0 * * * * *', async () => {
     const openTickets = await Ticket.find({
       status: 'Open',
       assignedTo: null,
-    }).limit(10);
+    })
+      .populate('customer')
+      .limit(10);
 
     if (openTickets.length === 0) {
       console.log('No open tickets to assign.');
@@ -33,11 +37,13 @@ export const ticketAssignmentJob = cron.schedule('0 * * * * *', async () => {
       }
 
       // Assign the ticket
-      ticket.assignedTo = bestAgent._id;
+      ticket.assignedTo = bestAgent._id; 
       ticket.status = 'In Progress';
       ticket.updatedAt = new Date(); 
 
       await ticket.save();
+
+      notifyTicketUpdate(ticket.customer as IUser, ticket);
 
       console.log(`Assigned Ticket "${ticket.title}" to Agent ${bestAgent.name}`);
     }

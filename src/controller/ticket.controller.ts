@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
-import { createTicketService, getTicketsService, deleteTicketService, updateTicketService } from '../services/ticket.service.ts';
 import type { IUser } from '../models/user.model.ts';
+import { createTicketService, getTicketsService, deleteTicketService, updateTicketService } from '../services/ticket.service.ts';
+import { notifyTicketUpdate } from '../services/email.service.ts';
 
 export async function createTicket(req: Request, res: Response, next: NextFunction) {
   try {
@@ -15,6 +16,8 @@ export async function createTicket(req: Request, res: Response, next: NextFuncti
       priority,
       customer: user._id, // Link ticket to the logged-in user
     });
+
+    notifyTicketUpdate(user, ticket);
 
     res.status(201).json({
       success: true,

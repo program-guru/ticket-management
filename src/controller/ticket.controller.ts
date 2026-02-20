@@ -25,6 +25,7 @@ export async function createTicket(req: Request, res: Response, next: NextFuncti
       message: 'Ticket created successfully',
     });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }
@@ -53,6 +54,7 @@ export async function getTickets(req: Request, res: Response, next: NextFunction
       data,
     });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }
@@ -69,6 +71,7 @@ export async function deleteTicket(req: Request, res: Response, next: NextFuncti
       message: 'Ticket deleted successfully',
     });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }
@@ -87,6 +90,7 @@ export async function updateTicket(req: Request, res: Response, next: NextFuncti
       message: 'Ticket updated successfully',
     });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }

@@ -17,6 +17,7 @@ export async function getReports(req: Request, res: Response, next: NextFunction
       data: metrics,
     });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }

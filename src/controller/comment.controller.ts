@@ -20,6 +20,7 @@ export async function createComment(req: Request, res: Response, next: NextFunct
       message: 'Comment created successfully',
     });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }
@@ -36,6 +37,7 @@ export async function getComments(req: Request, res: Response, next: NextFunctio
       data: comments,
     });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }
@@ -54,6 +56,7 @@ export async function updateComment(req: Request, res: Response, next: NextFunct
       message: 'Comment updated successfully',
     });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }
@@ -70,6 +73,7 @@ export async function deleteComment(req: Request, res: Response, next: NextFunct
       message: 'Comment deleted successfully',
     });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }

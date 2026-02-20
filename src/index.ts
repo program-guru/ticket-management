@@ -11,6 +11,7 @@ import commentRoutes from './routes/comment.routes.ts';
 import reportRoutes from './routes/report.route.ts';
 import connectDB from './config/database.ts';
 import rateLimiter from './config/rateLimit.ts';
+import { requestTimeout, haltOnTimedout } from './middlewares/timeout.middleware.ts';
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware.ts';
 import { ticketAssignmentJob } from './jobs/ticketAssignment.job.ts';
 import { ticketClosingJob } from './jobs/ticketClosing.job.ts';
@@ -27,12 +28,14 @@ ticketClosingJob.start();
 const app = express();
 
 // Middleware
+app.use(requestTimeout);
 app.use(express.json());
 app.use(cookieParser());
 app.use(rateLimiter);
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(passport.initialize());
 passport.use(jwtStrategy);
+app.use(haltOnTimedout);
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -45,6 +48,7 @@ app.use('/api/reports', reportRoutes);
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 
+// Start the server
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
 });

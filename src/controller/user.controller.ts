@@ -9,6 +9,7 @@ export async function getUsers(req: Request, res: Response, next: NextFunction) 
 
     res.status(200).json({ success: true, data });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }
@@ -24,6 +25,7 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
     // Send only user data 
     res.status(200).json({ success: true, data: user });
   } catch (error) {
+    if (req.timedout) return;
     next(error);
   }
 }
